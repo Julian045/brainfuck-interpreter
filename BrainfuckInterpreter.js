@@ -4,12 +4,14 @@ class BrainfuckInterpreter {
     this.pointer = 0; // Memory pointer
     this.inputBuffer = ''; // Input buffer
     this.outputBuffer = ''; // Output buffer
+    this.maxIterations = 1000000; // Maximum number of iterations to prevent infinite loops
   }
 
   interpret(code, input = '') {
     this.reset();
     this.inputBuffer = input;
     let output = '';
+    let iterations = 0;
 
     for (let i = 0; i < code.length; i++) {
       const command = code.charAt(i);
@@ -40,22 +42,30 @@ class BrainfuckInterpreter {
         case '[':
           if (this.memory[this.pointer] === 0) {
             let loopCount = 1;
-            while (loopCount > 0) {
+            while (loopCount > 0 && iterations < this.maxIterations) {
               i++;
+              iterations++;
               const c = code.charAt(i);
               if (c === '[') loopCount++;
               else if (c === ']') loopCount--;
+            }
+            if (iterations >= this.maxIterations) {
+              throw new Error('Maximum iteration limit exceeded!');
             }
           }
           break;
         case ']':
           if (this.memory[this.pointer] !== 0) {
             let loopCount = 1;
-            while (loopCount > 0) {
+            while (loopCount > 0 && iterations < this.maxIterations) {
               i--;
+              iterations++;
               const c = code.charAt(i);
               if (c === ']') loopCount++;
               else if (c === '[') loopCount--;
+            }
+            if (iterations >= this.maxIterations) {
+              throw new Error('Maximum iteration limit exceeded!');
             }
           }
           break;
